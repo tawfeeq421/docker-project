@@ -53,7 +53,7 @@ pipeline {
                     dir('Docker-files') {
                         // Use withDockerRegistry to authenticate DockerHub
                         withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
-                            sh 'docker build -t app Docker-files'
+                            sh 'docker build -t app .'
                             sh 'docker tag app tawfeeq421/java11:task'
                             sh 'docker push tawfeeq421/java11:task'
                         }
