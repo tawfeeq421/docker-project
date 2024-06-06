@@ -56,6 +56,7 @@ pipeline {
                 }
             }
         }
+
         stage('Deploy to Container') {
             steps {
                 sh 'docker run -d --name app -p 3000:8080 tawfeeq421/java11:task'
