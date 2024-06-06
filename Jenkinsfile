@@ -32,23 +32,15 @@ pipeline {
             }
         }
         stage('Sonar Analysis') {
-    environment {
-        scannerHome = tool 'sonar-scanner'
-    }
-    steps {
-        withSonarQubeEnv('sonar-server') {
-            sh '''$scannerHome/bin/sonar-scanner \
-                -Dsonar.projectName=javaapp \
-                -Dsonar.projectKey=javaapp \
-                -Dsonar.java.binaries=target/classes'''
-        }
-    }
-}
-
-        stage('Quality Gate') {
+            environment {
+                scannerHome = tool 'sonar-scanner'
+            }
             steps {
-                script {
-                    waitForQualityGate abortPipeline: false
+                withSonarQubeEnv('sonar-server') {
+                    sh '''$scannerHome/bin/sonar-scanner \
+                        -Dsonar.projectName=javaapp \
+                        -Dsonar.projectKey=javaapp \
+                        -Dsonar.java.binaries=target/classes'''
                 }
             }
         }
