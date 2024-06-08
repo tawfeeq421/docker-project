@@ -8,12 +8,13 @@ pipeline{
     environment {
         SCANNER_HOME=tool 'sonar-scanner'
     }
-    stages {
-        stage('clean workspace'){
-            steps{
-                cleanWs()
-            }
+    stages{
+        stage('Fetch code') {
+          steps{
+              git url:'https://github.com/tawfeeq421/docker-project.git'
+          }  
         }
+
         stage('Build') {
             steps {
                 sh 'mvn clean install -DskipTests'
@@ -25,12 +26,14 @@ pipeline{
                 }
             }
         }
-        stage('Test') {
+        stage('Test'){
             steps {
                 sh 'mvn test'
             }
+
         }
-        stage('Checkstyle Analysis') {
+
+        stage('Checkstyle Analysis'){
             steps {
                 sh 'mvn checkstyle:checkstyle'
             }
