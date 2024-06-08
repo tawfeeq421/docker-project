@@ -1,16 +1,18 @@
-pipeline {
+pipeline{
     agent any
-    tools {
+    tools{
         maven "maven"
-        jdk "jdk"
-        // Add SonarQube scanner tool definition here if not already defined
-        // sonarScanner "sonar-scanner"
+        jdk 'jdk'
+        
+    }
+    environment {
+        SCANNER_HOME=tool 'sonar-scanner'
     }
     stages {
-        stage('Fetch code') {
-            steps {
-                git url: 'https://github.com/tawfeeq421/docker-project.git'
-            }  
+        stage('clean workspace'){
+            steps{
+                cleanWs()
+            }
         }
         stage('Build') {
             steps {
@@ -33,6 +35,7 @@ pipeline {
                 sh 'mvn checkstyle:checkstyle'
             }
         }
+        
         stage('Sonar Analysis') {
             environment {
                 scannerHome = tool 'sonar-scanner'
@@ -46,23 +49,27 @@ pipeline {
                 }
             }
         }
-        stage('Docker Build & Push') {
-            steps {
+        stage("quality gate"){
+           steps {
                 script {
-                    // Change directory for the build command
-                    dir('Docker-files') {
-                        // Use withDockerRegistry to authenticate DockerHub
-                        withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker') {
-                            sh 'docker build -t app .'
-                            sh 'docker tag app tawfeeq421/java11:task'
-                            sh 'docker push tawfeeq421/java11:task'
-                        }
+                    waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token'
+                }
+            }
+        }
+        
+        stage("Docker Build & Push"){
+            steps{
+                script{
+                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
+                        sh 'docker build -t app .'
+                        sh 'docker tag app tawfeeq421/java11:task'
+                        sh 'docker push tawfeeq421/java11:task'
                     }
                 }
             }
         }
-        stage('Deploy to Container') {
-            steps {
+        stage('Deploy to container'){
+            steps{
                 sh 'docker run -d --name app -p 3000:8080 tawfeeq421/java11:task'
             }
         }
