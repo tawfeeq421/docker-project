@@ -56,7 +56,7 @@ pipeline{
         stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){
+                   withDockerRegistry(credentialsId: 'dockerhub', toolName: 'docker'){
                         sh 'docker build -t app .'
                         sh 'docker tag app tawfeeq421/java11:task'
                         sh 'docker push tawfeeq421/java11:task'
